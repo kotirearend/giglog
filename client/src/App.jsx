@@ -1,0 +1,225 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from './hooks/useAuth';
+import { useGigs } from './hooks/useGigs';
+import { useStats } from './hooks/useStats';
+import { useSync } from './hooks/useSync';
+import { saveLocalPerson, getLocalPeople } from './db/local';
+
+import { Timeline } from './screens/Timeline';
+import { AddGig } from './screens/AddGig';
+import { GigDetail } from './screens/GigDetail';
+import { Stats } from './screens/Stats';
+import { People } from './screens/People';
+import { PersonDetail } from './screens/PersonDetail';
+import { Login } from './screens/Login';
+import { Register } from './screens/Register';
+
+import { BottomNav } from './components/BottomNav';
+
+export default function App() {
+  const auth = useAuth();
+  const gigs = useGigs(auth.token);
+  const stats = useStats(gigs.gigs);
+  const sync = useSync(auth.token);
+
+  const [screen, setScreen] = useState('timeline');
+  const [screenParams, setScreenParams] = useState({});
+  const [people, setPeople] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    loadPeople();
+  }, []);
+
+  useEffect(() => {
+    if (auth.token && !auth.isOfflineMode) {
+      sync.syncPull();
+      sync.syncPush();
+    }
+  }, [auth.token, auth.isOfflineMode]);
+
+  async function loadPeople() {
+    const localPeople = await getLocalPeople();
+    setPeople(localPeople);
+  }
+
+  // Derive artists and venues from gigs
+  const artists = [...new Set(gigs.gigs.map((g) => g.artist_text).filter(Boolean))];
+  const venues = stats.topVenues.map((v) => ({
+    id: `venue-${v.name}`,
+    name: v.name,
+    city: '',
+  }));
+
+  // Screen navigation
+  function goToTimeline() {
+    setScreen('timeline');
+    setScreenParams({});
+  }
+
+  function goToAddGig() {
+    setScreen('addGig');
+    setScreenParams({});
+  }
+
+  function goToGigDetail(gigId) {
+    setScreen('gigDetail');
+    setScreenParams({ gigId });
+  }
+
+  function goToStats() {
+    setScreen('stats');
+    setScreenParams({});
+  }
+
+  function goPeople() {
+    setScreen('people');
+    setScreenParams({});
+  }
+
+  function goToPersonDetail(personId) {
+    setScreen('personDetail');
+    setScreenParams({ personId });
+  }
+
+  function goToLogin() {
+    setScreen('login');
+    setScreenParams({});
+  }
+
+  function goToRegister() {
+    setScreen('register');
+    setScreenParams({});
+  }
+
+  // Handlers
+  async function handleAddGig(gigData) {
+    const gig = await gigs.addGig(gigData);
+    return gig;
+  }
+
+  async function handleUpdateGig(gigId, data) {
+    await gigs.updateGig(gigId, data);
+  }
+
+  async function handleDeleteGig(gigId) {
+    await gigs.deleteGig(gigId);
+  }
+
+  async function handleAddPerson(personData) {
+    const person = {
+      id: `person-${Date.now()}`,
+      nickname: personData.nickname,
+      user_id: auth.user?.id,
+      ...personData,
+    };
+    await saveLocalPerson(person);
+    setPeople([...people, person]);
+  }
+
+  async function handleLogin(email, password) {
+    const result = await auth.login(email, password);
+    if (result.success) {
+      goToTimeline();
+    }
+    return result;
+  }
+
+  async function handleRegister(email, password, displayName) {
+    const result = await auth.register(email, password, displayName);
+    if (result.success) {
+      goToTimeline();
+    }
+    return result;
+  }
+
+  // Auth check
+  if (!auth.isAuthenticated) {
+    if (screen === 'register') {
+      return (
+        <Register
+          onRegister={handleRegister}
+          onLogin={goToLogin}
+        />
+      );
+    }
+
+    return (
+      <Login
+        onLogin={handleLogin}
+        onRegister={goToRegister}
+        onOffline={() => {
+          auth.setOfflineMode(true);
+          goToTimeline();
+        }}
+      />
+    );
+  }
+
+  // Main app screen routing
+  return (
+    <>
+      {screen === 'timeline' && (
+        <Timeline
+          gigs={gigs.gigs}
+          onAddGig={goToAddGig}
+          onSelectGig={goToGigDetail}
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+        />
+      )}
+
+      {screen === 'addGig' && (
+        <AddGig
+          venues={venues}
+          artists={artists}
+          onSave={handleAddGig}
+          onCancel={goToTimeline}
+          stats={stats}
+        />
+      )}
+
+      {screen === 'gigDetail' && (
+        <GigDetail
+          gigId={screenParams.gigId}
+          onBack={goToTimeline}
+          gigs={gigs.gigs}
+          people={people}
+          onUpdate={handleUpdateGig}
+          onDelete={handleDeleteGig}
+        />
+      )}
+
+      {screen === 'stats' && <Stats stats={stats} />}
+
+      {screen === 'people' && (
+        <People
+          people={people}
+          gigs={gigs.gigs}
+          onSelect={goToPersonDetail}
+          onAdd={handleAddPerson}
+        />
+      )}
+
+      {screen === 'personDetail' && (
+        <PersonDetail
+          person={people.find((p) => p.id === screenParams.personId)}
+          gigs={gigs.gigs}
+          onBack={goPeople}
+          onSelectGig={goToGigDetail}
+        />
+      )}
+
+      {['timeline', 'stats', 'people'].includes(screen) && (
+        <BottomNav
+          activeTab={screen}
+          onNavigate={(tab) => {
+            if (tab === 'timeline') goToTimeline();
+            if (tab === 'stats') goToStats();
+            if (tab === 'people') goPeople();
+          }}
+        />
+      )}
+    </>
+  );
+}

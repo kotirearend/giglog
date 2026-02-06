@@ -1,0 +1,61 @@
+name: giglog
+region: lon1
+
+services:
+  - name: api
+    github:
+      repo: kotirearend/giglog
+      branch: main
+      deploy_on_push: true
+    source_dir: server
+    build_command: npm install
+    run_command: node index.js
+    http_port: 8080
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1
+    routes:
+      - path: /api
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_REFRESH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: CORS_ORIGIN
+        value: https://giglog.koti.work
+      - key: DO_SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_BUCKET
+        value: giglog-photos
+      - key: DO_SPACES_REGION
+        value: lon1
+
+static_sites:
+  - name: client
+    github:
+      repo: kotirearend/giglog
+      branch: main
+      deploy_on_push: true
+    source_dir: client
+    build_command: npm install && npm run build
+    output_dir: dist
+    routes:
+      - path: /
+    catchall_document: index.html
+    envs:
+      - key: VITE_API_URL
+        value: /api
+
+domains:
+  - domain: giglog.koti.work
+    type: PRIMARY
