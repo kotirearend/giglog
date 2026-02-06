@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const migrationsDir = path.join(__dirname, 'migrations');
 
-async function runMigrations() {
+export async function runMigrations() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS _migrations (
@@ -22,11 +22,11 @@ async function runMigrations() {
 
     for (const file of files) {
       const result = await pool.query('SELECT * FROM _migrations WHERE name = $1', [file]);
-      
+
       if (result.rows.length === 0) {
         const filePath = path.join(migrationsDir, file);
         const sql = fs.readFileSync(filePath, 'utf-8');
-        
+
         console.log(`Running migration: ${file}`);
         await pool.query(sql);
         await pool.query('INSERT INTO _migrations (name) VALUES ($1)', [file]);
@@ -37,12 +37,20 @@ async function runMigrations() {
     }
 
     console.log('All migrations completed successfully');
-    await pool.end();
   } catch (err) {
     console.error('Migration error:', err);
-    await pool.end();
-    process.exit(1);
+    throw err;
   }
 }
 
-runMigrations();
+// Allow running directly: node db/migrate.js
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectRun) {
+  runMigrations().then(() => {
+    pool.end();
+    process.exit(0);
+  }).catch(() => {
+    pool.end();
+    process.exit(1);
+  });
+}

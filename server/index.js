@@ -10,6 +10,7 @@ import peopleRoutes from './routes/people.js';
 import photosRoutes from './routes/photos.js';
 import statsRoutes from './routes/stats.js';
 import syncRoutes from './routes/sync.js';
+import { runMigrations } from './db/migrate.js';
 
 dotenv.config();
 
@@ -54,6 +55,14 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`GigLog Express API running on port ${PORT}`);
-});
+// Run migrations then start server
+runMigrations()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`GigLog Express API running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to run migrations:', err);
+    process.exit(1);
+  });
