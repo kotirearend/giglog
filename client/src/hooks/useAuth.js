@@ -19,7 +19,7 @@ export function useAuth() {
   async function login(email, password) {
     try {
       const response = await post('/auth/login', { email, password });
-      setToken(response.token);
+      setToken(response.access_token);
       setUser(response.user);
       setOfflineMode(false);
       return { success: true };
@@ -35,7 +35,7 @@ export function useAuth() {
         password,
         display_name: displayName,
       });
-      setToken(response.token);
+      setToken(response.access_token);
       setUser(response.user);
       setOfflineMode(false);
       return { success: true };

@@ -9,8 +9,8 @@ async function handleResponse(response) {
   if (response.status === 401) {
     try {
       const refreshed = await post('/auth/refresh', {});
-      if (refreshed.token) {
-        localStorage.setItem('token', refreshed.token);
+      if (refreshed.access_token) {
+        localStorage.setItem('token', refreshed.access_token);
       }
     } catch (error) {
       localStorage.removeItem('token');

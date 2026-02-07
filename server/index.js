@@ -34,6 +34,7 @@ const generalLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
+// Mount routes with /api prefix (direct access)
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/gigs', generalLimiter, gigsRoutes);
 app.use('/api/venues', generalLimiter, venuesRoutes);
@@ -42,13 +43,17 @@ app.use('/api/photos', generalLimiter, photosRoutes);
 app.use('/api/stats', generalLimiter, statsRoutes);
 app.use('/api/sync', generalLimiter, syncRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Also mount without /api prefix (DO App Platform strips it via ingress)
+app.use('/auth', authLimiter, authRoutes);
+app.use('/gigs', generalLimiter, gigsRoutes);
+app.use('/venues', generalLimiter, venuesRoutes);
+app.use('/people', generalLimiter, peopleRoutes);
+app.use('/photos', generalLimiter, photosRoutes);
+app.use('/stats', generalLimiter, statsRoutes);
+app.use('/sync', generalLimiter, syncRoutes);
 
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'Not found' });
-});
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use((err, req, res, next) => {
   console.error(err);
