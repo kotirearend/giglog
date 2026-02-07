@@ -18,20 +18,25 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'https://giglog.koti.work';
 
+// Trust proxy (required for DO App Platform behind load balancer)
+app.set('trust proxy', 1);
+
 app.use(helmet());
-app.use(cors({ origin: CORS_ORIGIN }));
+app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  validate: { xForwardedForHeader: false },
 });
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  validate: { xForwardedForHeader: false },
 });
 
 // Mount routes with /api prefix (direct access)

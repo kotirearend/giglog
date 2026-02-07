@@ -10,6 +10,17 @@ const migrationsDir = path.join(__dirname, 'migrations');
 
 export async function runMigrations() {
   try {
+    // Log connection info for debugging
+    const whoami = await pool.query('SELECT current_user, current_database()');
+    console.log('Connected as:', whoami.rows[0].current_user, 'to database:', whoami.rows[0].current_database);
+
+    // Try to grant schema permissions (will succeed if we're a superuser, silently fail otherwise)
+    try {
+      await pool.query('GRANT ALL ON SCHEMA public TO current_user');
+    } catch (e) {
+      console.log('Grant attempt:', e.message);
+    }
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS _migrations (
         id SERIAL PRIMARY KEY,
