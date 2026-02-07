@@ -1,15 +1,13 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   display_name VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE venues (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE IF NOT EXISTS venues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
   city VARCHAR(255),
@@ -20,16 +18,16 @@ CREATE TABLE venues (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE people (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE IF NOT EXISTS people (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   nickname VARCHAR(255) NOT NULL,
   emoji VARCHAR(10),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE gigs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE IF NOT EXISTS gigs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   gig_date DATE NOT NULL,
   gig_time TIME,
@@ -50,16 +48,16 @@ CREATE TABLE gigs (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE photos (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE IF NOT EXISTS photos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   gig_id UUID NOT NULL REFERENCES gigs(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   uploaded_url VARCHAR(2048),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_gigs_user_id ON gigs(user_id);
-CREATE INDEX idx_gigs_gig_date ON gigs(gig_date DESC);
-CREATE INDEX idx_gigs_updated_at ON gigs(updated_at);
-CREATE INDEX idx_venues_user_id ON venues(user_id);
-CREATE INDEX idx_people_user_id ON people(user_id);
+CREATE INDEX IF NOT EXISTS idx_gigs_user_id ON gigs(user_id);
+CREATE INDEX IF NOT EXISTS idx_gigs_gig_date ON gigs(gig_date DESC);
+CREATE INDEX IF NOT EXISTS idx_gigs_updated_at ON gigs(updated_at);
+CREATE INDEX IF NOT EXISTS idx_venues_user_id ON venues(user_id);
+CREATE INDEX IF NOT EXISTS idx_people_user_id ON people(user_id);
