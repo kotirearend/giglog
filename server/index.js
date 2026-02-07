@@ -55,14 +55,16 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-// Run migrations then start server
+// Run migrations then start server (don't crash if migrations fail)
 runMigrations()
   .then(() => {
+    console.log('Migrations complete');
+  })
+  .catch((err) => {
+    console.error('Migration warning (server will start anyway):', err.message);
+  })
+  .finally(() => {
     app.listen(PORT, () => {
       console.log(`GigLog Express API running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error('Failed to run migrations:', err);
-    process.exit(1);
   });
