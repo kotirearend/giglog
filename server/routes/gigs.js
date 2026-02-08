@@ -47,21 +47,21 @@ router.get('/', async (req, res) => {
 
 router.post('/', validateGig, async (req, res) => {
   try {
-    const { gig_date, gig_time, venue_id, venue_name_snapshot, venue_city_snapshot, lat, lng, artist_text, mood_tags, people_ids, spend_total, purchases, rating, notes } = req.body;
-    
+    const { gig_date, gig_time, venue_id, venue_name_snapshot, venue_city_snapshot, lat, lng, artist_text, mood_tags, people_ids, people, spend_total, purchases, rating, notes } = req.body;
+
     const gigId = uuidv4();
     const derivedDate = gig_date || deriveGigDate(new Date().toISOString());
 
     const result = await pool.query(
       `INSERT INTO gigs (
-        id, user_id, gig_date, gig_time, venue_id, venue_name_snapshot, venue_city_snapshot, 
-        lat, lng, artist_text, mood_tags, people_ids, spend_total, purchases, rating, notes, sync_state
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        id, user_id, gig_date, gig_time, venue_id, venue_name_snapshot, venue_city_snapshot,
+        lat, lng, artist_text, mood_tags, people_ids, people, spend_total, purchases, rating, notes, sync_state
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *`,
       [
         gigId, req.user.id, derivedDate, gig_time || null, venue_id || null, venue_name_snapshot,
         venue_city_snapshot || null, lat || null, lng || null, artist_text, mood_tags || null,
-        people_ids || null, spend_total || null, purchases || null, rating || null, notes || null, 'local'
+        people_ids || null, people || null, spend_total || null, purchases || null, rating || null, notes || null, 'local'
       ]
     );
 
@@ -86,7 +86,7 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const allowedFields = ['gig_date', 'gig_time', 'venue_id', 'venue_name_snapshot', 'venue_city_snapshot', 'lat', 'lng', 'artist_text', 'mood_tags', 'people_ids', 'spend_total', 'purchases', 'rating', 'notes'];
+    const allowedFields = ['gig_date', 'gig_time', 'venue_id', 'venue_name_snapshot', 'venue_city_snapshot', 'lat', 'lng', 'artist_text', 'mood_tags', 'people_ids', 'people', 'spend_total', 'purchases', 'rating', 'notes'];
     
     const updates = {};
     allowedFields.forEach(field => {
