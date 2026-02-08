@@ -39,24 +39,40 @@ export function useGigs(token) {
 
   async function addGig(data) {
     try {
+      if (token) {
+        // Online: post directly to server, use server response as source of truth
+        const serverGig = await post('/gigs', data);
+        await saveGigLocally(serverGig);
+        setGigs([serverGig, ...gigs]);
+        return serverGig;
+      } else {
+        // Offline: save locally and queue for later sync
+        const gigData = {
+          id: `local-${Date.now()}`,
+          ...data,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        await saveGigLocally(gigData);
+        setGigs([gigData, ...gigs]);
+        await queueForSync('create_gig', gigData);
+        return gigData;
+      }
+    } catch (error) {
+      // If server post fails, fall back to local save
       const gigData = {
         id: `local-${Date.now()}`,
         ...data,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-
       await saveGigLocally(gigData);
       setGigs([gigData, ...gigs]);
-
       if (token) {
         await queueForSync('create_gig', gigData);
       }
-
+      console.error('Error adding gig to server, saved locally:', error);
       return gigData;
-    } catch (error) {
-      console.error('Error adding gig:', error);
-      throw error;
     }
   }
 

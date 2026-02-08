@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giglog-v1';
+const CACHE_NAME = 'giglog-v2';
 const ASSET_PATTERNS = [/\.(js|css|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot)$/];
 
 self.addEventListener('install', (event) => {
@@ -6,7 +6,13 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      )
+    ).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
