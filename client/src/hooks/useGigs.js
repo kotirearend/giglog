@@ -21,8 +21,20 @@ export function useGigs(token) {
     try {
       if (token) {
         const response = await get('/gigs');
-        setGigs(response.gigs || []);
-        for (const gig of response.gigs || []) {
+        const serverGigs = response.gigs || [];
+
+        // Merge: use server gigs as base, add any local-only gigs
+        const localGigs = await getLocalGigs();
+        const serverIds = new Set(serverGigs.map((g) => g.id));
+        const localOnly = localGigs.filter(
+          (g) => !serverIds.has(g.id) && g.id.startsWith('local-')
+        );
+
+        const merged = [...serverGigs, ...localOnly];
+        setGigs(merged);
+
+        // Cache server gigs locally
+        for (const gig of serverGigs) {
           await saveGigLocally(gig);
         }
       } else {
@@ -37,11 +49,20 @@ export function useGigs(token) {
     }
   }
 
+  // Clean venue_id if it's not a real UUID (client-generated IDs like "venue-Name")
+  function cleanGigData(data) {
+    const cleaned = { ...data };
+    if (cleaned.venue_id && !cleaned.venue_id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i)) {
+      cleaned.venue_id = null;
+    }
+    return cleaned;
+  }
+
   async function addGig(data) {
     try {
       if (token) {
-        // Online: post directly to server, use server response as source of truth
-        const serverGig = await post('/gigs', data);
+        // Online: post directly to server
+        const serverGig = await post('/gigs', cleanGigData(data));
         await saveGigLocally(serverGig);
         setGigs([serverGig, ...gigs]);
         return serverGig;
