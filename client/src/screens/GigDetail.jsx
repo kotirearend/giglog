@@ -79,18 +79,63 @@ export function GigDetail({
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-dark-700 border border-dark-600 rounded-lg p-4">
-          <h2 className="text-2xl font-bold text-gray-100">
-            {editData.artist_text}
-          </h2>
-          <p className="text-gray-400 text-lg mt-1">
-            {editData.venue_name_snapshot}
-          </p>
-          {editData.venue_city_snapshot && (
-            <p className="text-gray-500 text-sm">{editData.venue_city_snapshot}</p>
+          {isEditing ? (
+            <div className="space-y-3">
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Artist</label>
+                <input
+                  type="text"
+                  value={editData.artist_text || ''}
+                  onChange={(e) => setEditData({ ...editData, artist_text: e.target.value })}
+                  className="w-full bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-gray-100 focus:border-accent-purple focus:outline-none text-lg font-bold"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Venue</label>
+                <input
+                  type="text"
+                  value={editData.venue_name_snapshot || ''}
+                  onChange={(e) => setEditData({ ...editData, venue_name_snapshot: e.target.value })}
+                  className="w-full bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-gray-100 focus:border-accent-purple focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">City</label>
+                <input
+                  type="text"
+                  value={editData.venue_city_snapshot || ''}
+                  onChange={(e) => setEditData({ ...editData, venue_city_snapshot: e.target.value })}
+                  placeholder="City (optional)"
+                  className="w-full bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-gray-100 focus:border-accent-purple focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Date</label>
+                <input
+                  type="date"
+                  value={String(editData.gig_date || '').split('T')[0]}
+                  onChange={(e) => setEditData({ ...editData, gig_date: e.target.value })}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-gray-100 focus:border-accent-purple focus:outline-none"
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold text-gray-100">
+                {editData.artist_text}
+              </h2>
+              <p className="text-gray-400 text-lg mt-1">
+                {editData.venue_name_snapshot}
+              </p>
+              {editData.venue_city_snapshot && (
+                <p className="text-gray-500 text-sm">{editData.venue_city_snapshot}</p>
+              )}
+              <p className="text-accent-purple font-semibold mt-3">
+                {formatDate(editData.gig_date)}
+              </p>
+            </>
           )}
-          <p className="text-accent-purple font-semibold mt-3">
-            {formatDate(editData.gig_date)}
-          </p>
         </div>
 
         {/* Mood */}
