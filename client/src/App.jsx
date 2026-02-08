@@ -13,6 +13,7 @@ import { People } from './screens/People';
 import { PersonDetail } from './screens/PersonDetail';
 import { Login } from './screens/Login';
 import { Register } from './screens/Register';
+import { Account } from './screens/Account';
 
 import { BottomNav } from './components/BottomNav';
 
@@ -80,6 +81,11 @@ export default function App() {
   function goToPersonDetail(personId) {
     setScreen('personDetail');
     setScreenParams({ personId });
+  }
+
+  function goToAccount() {
+    setScreen('account');
+    setScreenParams({});
   }
 
   function goToLogin() {
@@ -221,13 +227,24 @@ export default function App() {
         />
       )}
 
-      {['timeline', 'stats', 'people'].includes(screen) && (
+      {screen === 'account' && (
+        <Account
+          user={auth.user}
+          onLogout={() => {
+            auth.logout();
+            goToLogin();
+          }}
+        />
+      )}
+
+      {['timeline', 'stats', 'people', 'account'].includes(screen) && (
         <BottomNav
           activeTab={screen}
           onNavigate={(tab) => {
             if (tab === 'timeline') goToTimeline();
             if (tab === 'stats') goToStats();
             if (tab === 'people') goPeople();
+            if (tab === 'account') goToAccount();
           }}
         />
       )}

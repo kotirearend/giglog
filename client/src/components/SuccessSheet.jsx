@@ -8,8 +8,8 @@ export function SuccessSheet({ gig, stats, onDismiss, onEnrich }) {
     ?.count || 1;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-      <div className="w-full bg-dark-800 border-t border-dark-600 rounded-t-2xl p-6 max-w-lg mx-auto animate-in slide-in-from-bottom">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="w-full bg-dark-800 border border-dark-600 rounded-2xl p-6 max-w-lg mx-auto">
         <div className="text-center mb-6">
           <div className="text-5xl mb-3">✓</div>
           <h2 className="text-2xl font-bold text-gray-100 mb-2">Gig saved!</h2>
