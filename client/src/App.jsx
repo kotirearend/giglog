@@ -100,6 +100,17 @@ export default function App() {
 
   async function handleUpdateGig(gigId, data) {
     await gigs.updateGig(gigId, data);
+
+    // Auto-create person records for any new names added to this gig
+    if (data.people && data.people.length > 0) {
+      const existingNicknames = people.map((p) => p.nickname.toLowerCase());
+      for (const name of data.people) {
+        if (!existingNicknames.includes(name.toLowerCase())) {
+          await handleAddPerson({ nickname: name });
+          existingNicknames.push(name.toLowerCase());
+        }
+      }
+    }
   }
 
   async function handleDeleteGig(gigId) {
