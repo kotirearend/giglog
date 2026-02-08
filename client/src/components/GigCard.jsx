@@ -47,9 +47,11 @@ export function GigCard({ gig, onClick }) {
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          {gig.mood && (
+          {gig.mood && gig.mood.length > 0 && (
             <div className="bg-dark-600 rounded-full px-3 py-1 flex items-center gap-1">
-              <span className="text-sm">{moodMap[gig.mood]}</span>
+              {(Array.isArray(gig.mood) ? gig.mood : [gig.mood]).map((m) => (
+                <span key={m} className="text-sm">{moodMap[m]}</span>
+              ))}
             </div>
           )}
 

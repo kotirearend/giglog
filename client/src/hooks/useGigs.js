@@ -21,7 +21,7 @@ export function useGigs(token) {
     try {
       if (token) {
         const response = await get('/gigs');
-        const serverGigs = response.gigs || [];
+        const serverGigs = (response.gigs || []).map(toClientFields);
 
         // Merge: use server gigs as base, add any local-only gigs
         const localGigs = await getLocalGigs();
@@ -58,14 +58,43 @@ export function useGigs(token) {
     return cleaned;
   }
 
+  // Map client field names to server field names before sending
+  function toServerFields(data) {
+    const mapped = { ...data };
+    if ('mood' in mapped) {
+      mapped.mood_tags = mapped.mood;
+      delete mapped.mood;
+    }
+    if ('spend_items' in mapped) {
+      mapped.purchases = mapped.spend_items;
+      delete mapped.spend_items;
+    }
+    return mapped;
+  }
+
+  // Map server field names to client field names after receiving
+  function toClientFields(gig) {
+    const mapped = { ...gig };
+    if ('mood_tags' in mapped) {
+      mapped.mood = mapped.mood_tags || [];
+      delete mapped.mood_tags;
+    }
+    if ('purchases' in mapped) {
+      mapped.spend_items = mapped.purchases || [];
+      delete mapped.purchases;
+    }
+    return mapped;
+  }
+
   async function addGig(data) {
     try {
       if (token) {
         // Online: post directly to server
-        const serverGig = await post('/gigs', cleanGigData(data));
-        await saveGigLocally(serverGig);
-        setGigs([serverGig, ...gigs]);
-        return serverGig;
+        const serverGig = await post('/gigs', toServerFields(cleanGigData(data)));
+        const clientGig = toClientFields(serverGig);
+        await saveGigLocally(clientGig);
+        setGigs([clientGig, ...gigs]);
+        return clientGig;
       } else {
         // Offline: save locally and queue for later sync
         const gigData = {
@@ -109,7 +138,7 @@ export function useGigs(token) {
       setGigs(gigs.map((g) => (g.id === id ? updated : g)));
 
       if (token && !id.startsWith('local-')) {
-        await put(`/gigs/${id}`, updated);
+        await put(`/gigs/${id}`, toServerFields(updated));
       } else if (token) {
         await queueForSync('update_gig', updated);
       }
