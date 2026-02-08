@@ -6,20 +6,31 @@ function getAuthHeader() {
 }
 
 async function handleResponse(response) {
-  if (response.status === 401) {
-    try {
-      const refreshed = await post('/auth/refresh', {});
-      if (refreshed.access_token) {
-        localStorage.setItem('token', refreshed.access_token);
-      }
-    } catch (error) {
-      localStorage.removeItem('token');
-      throw new Error('Unauthorized');
-    }
-  }
-
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    // Try token refresh on 401
+    if (response.status === 401) {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        try {
+          const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            if (refreshData.access_token) {
+              localStorage.setItem('token', refreshData.access_token);
+              // Retry the original request is not implemented yet
+            }
+          }
+        } catch (e) {
+          console.error('Token refresh failed:', e);
+        }
+      }
+    }
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP ${response.status}`);
   }
 
   return response.json();

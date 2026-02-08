@@ -47,7 +47,7 @@ export function useSync(token) {
     setSyncing(true);
     try {
       const since = lastSync || '2020-01-01T00:00:00Z';
-      const response = await get(`/gigs/sync?since=${since}`);
+      const response = await get(`/sync/pull?since=${since}`);
 
       const now = new Date().toISOString();
       setLastSync(now);

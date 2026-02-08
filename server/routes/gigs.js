@@ -31,15 +31,15 @@ router.get('/', async (req, res) => {
     }
 
     if (search) {
-      query += ` AND (artist_text ILIKE $${params.length + 1} OR venue_name_snapshot ILIKE $${params.length + 1})`;
-      params.push(`%${search}%`);
+      const searchParam = params.length + 1;
+      query += ` AND (artist_text ILIKE $${searchParam} OR venue_name_snapshot ILIKE $${searchParam})`;
       params.push(`%${search}%`);
     }
 
     query += ' ORDER BY gig_date DESC';
 
     const result = await pool.query(query, params);
-    res.json(result.rows);
+    res.json({ gigs: result.rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

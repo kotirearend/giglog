@@ -16,11 +16,23 @@ export function useAuth() {
     }
   }, [token]);
 
+  function storeTokens(response) {
+    if (response.access_token) {
+      localStorage.setItem('token', response.access_token);
+      setToken(response.access_token);
+    }
+    if (response.refresh_token) {
+      localStorage.setItem('refresh_token', response.refresh_token);
+    }
+    if (response.user) {
+      setUser(response.user);
+    }
+  }
+
   async function login(email, password) {
     try {
       const response = await post('/auth/login', { email, password });
-      setToken(response.access_token);
-      setUser(response.user);
+      storeTokens(response);
       setOfflineMode(false);
       return { success: true };
     } catch (error) {
@@ -35,8 +47,7 @@ export function useAuth() {
         password,
         display_name: displayName,
       });
-      setToken(response.access_token);
-      setUser(response.user);
+      storeTokens(response);
       setOfflineMode(false);
       return { success: true };
     } catch (error) {
@@ -49,6 +60,7 @@ export function useAuth() {
     setToken(null);
     setOfflineMode(false);
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('offlineMode');
   }
 
