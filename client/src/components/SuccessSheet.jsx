@@ -8,7 +8,7 @@ export function SuccessSheet({ gig, stats, onDismiss, onEnrich }) {
     ?.count || 1;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+    <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 px-4 pt-12">
       <div className="w-full bg-dark-800 border border-dark-600 rounded-2xl p-6 max-w-lg mx-auto">
         <div className="text-center mb-6">
           <div className="text-5xl mb-3">✓</div>
