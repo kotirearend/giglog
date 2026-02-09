@@ -18,6 +18,7 @@ export function GigDetail({
   const [isEditing, setIsEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     const foundGig = gigs.find((g) => g.id === gigId);
@@ -39,8 +40,14 @@ export function GigDetail({
   const totalSpend = spendItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   async function handleSave() {
-    await onUpdate(gigId, editData);
-    setIsEditing(false);
+    try {
+      setSaveError(null);
+      await onUpdate(gigId, editData);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Save failed:', err);
+      setSaveError(err.message || 'Failed to save');
+    }
   }
 
   async function handleDeleteConfirm() {
@@ -334,6 +341,9 @@ export function GigDetail({
 
         {/* Actions */}
         <div className="space-y-2">
+          {saveError && (
+            <p className="text-red-400 text-sm font-mono text-center py-2">{saveError}</p>
+          )}
           {isEditing && (
             <button
               onClick={handleSave}

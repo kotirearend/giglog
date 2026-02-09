@@ -108,14 +108,18 @@ export default function App() {
     await gigs.updateGig(gigId, data);
 
     // Auto-create person records for any new names added to this gig
-    if (data.people && data.people.length > 0) {
-      const existingNicknames = people.map((p) => p.nickname.toLowerCase());
-      for (const name of data.people) {
-        if (!existingNicknames.includes(name.toLowerCase())) {
-          await handleAddPerson({ nickname: name });
-          existingNicknames.push(name.toLowerCase());
+    try {
+      if (data.people && data.people.length > 0) {
+        const existingNicknames = people.map((p) => p.nickname.toLowerCase());
+        for (const name of data.people) {
+          if (!existingNicknames.includes(name.toLowerCase())) {
+            await handleAddPerson({ nickname: name });
+            existingNicknames.push(name.toLowerCase());
+          }
         }
       }
+    } catch (err) {
+      console.error('Error auto-creating people:', err);
     }
   }
 
