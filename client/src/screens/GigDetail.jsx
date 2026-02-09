@@ -23,7 +23,11 @@ export function GigDetail({
     const foundGig = gigs.find((g) => g.id === gigId);
     if (foundGig) {
       setGig(foundGig);
-      setEditData({ ...foundGig });
+      // Only reset editData if we're not currently editing
+      // (avoids wiping in-progress edits when gigs array updates)
+      if (!isEditing) {
+        setEditData({ ...foundGig });
+      }
     }
   }, [gigId, gigs]);
 
@@ -60,19 +64,19 @@ export function GigDetail({
     <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
       <div className="flex items-center justify-between mb-6">
         <button
-          onClick={onBack}
+          onClick={isEditing ? () => setIsEditing(false) : onBack}
           className="text-accent-orange hover:text-accent-orange/80 transition-colors font-mono uppercase tracking-wide text-xs"
         >
-          ← Back
+          {isEditing ? '← Cancel' : '← Back'}
         </button>
         <h1 className="text-2xl font-black text-gray-100 flex-1 text-center tracking-tight">
           Gig Details
         </h1>
         <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="text-accent-orange hover:text-accent-orange/80 transition-colors"
+          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+          className="text-accent-orange hover:text-accent-orange/80 transition-colors font-mono uppercase tracking-wide text-xs font-bold"
         >
-          {isEditing ? 'Done' : 'Edit'}
+          {isEditing ? 'SAVE' : 'Edit'}
         </button>
       </div>
 

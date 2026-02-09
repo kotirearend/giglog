@@ -138,7 +138,7 @@ export function useGigs(token) {
       setGigs(gigs.map((g) => (g.id === id ? updated : g)));
 
       if (token && !id.startsWith('local-')) {
-        await put(`/gigs/${id}`, toServerFields(updated));
+        await put(`/gigs/${id}`, toServerFields(cleanGigData(updated)));
       } else if (token) {
         await queueForSync('update_gig', updated);
       }
