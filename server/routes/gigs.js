@@ -61,7 +61,9 @@ router.post('/', validateGig, async (req, res) => {
       [
         gigId, req.user.id, derivedDate, gig_time || null, venue_id || null, venue_name_snapshot,
         venue_city_snapshot || null, lat || null, lng || null, artist_text, mood_tags || null,
-        people_ids || null, people || null, spend_total || null, purchases || null, rating || null, notes || null, 'local'
+        people_ids || null, people || null, spend_total || null,
+        purchases ? JSON.stringify(purchases) : null,
+        rating || null, notes || null, 'local'
       ]
     );
 
@@ -91,7 +93,13 @@ router.put('/:id', async (req, res) => {
     const updates = {};
     allowedFields.forEach(field => {
       if (field in req.body) {
-        updates[field] = req.body[field];
+        // JSONB columns need explicit JSON.stringify — pg serialises
+        // JS arrays as PostgreSQL array literals, not JSON strings
+        if (field === 'purchases' && req.body[field] != null) {
+          updates[field] = JSON.stringify(req.body[field]);
+        } else {
+          updates[field] = req.body[field];
+        }
       }
     });
 
