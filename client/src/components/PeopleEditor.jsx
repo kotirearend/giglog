@@ -37,7 +37,7 @@ export function PeopleEditor({
         {selected.map((nickname) => (
           <div
             key={nickname}
-            className="bg-accent-purple text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm"
+            className="bg-accent-orange text-gray-900 px-3 py-1 flex items-center gap-2 text-sm font-mono font-bold"
           >
             <span>{nickname}</span>
             <button
@@ -57,16 +57,16 @@ export function PeopleEditor({
           value={input}
           onChange={(e) => handleInput(e.target.value)}
           onFocus={() => setShowSuggestions(input.length > 0)}
-          className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+          className="w-full bg-dark-700 border border-dark-600 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
         />
 
         {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-dark-700 border border-dark-600 rounded-lg overflow-hidden z-10">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-dark-700 border border-dark-600 overflow-hidden z-10">
             {suggestions.map((person) => (
               <button
                 key={person.id}
                 onClick={() => handleAdd(person.nickname)}
-                className="w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100"
+                className="w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100 font-mono text-sm"
               >
                 {person.nickname}
               </button>
@@ -77,7 +77,7 @@ export function PeopleEditor({
         {input && suggestions.length === 0 && (
           <button
             onClick={() => handleAdd(input)}
-            className="absolute top-full left-0 right-0 mt-2 bg-dark-700 border border-dark-600 rounded-lg px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100 text-left z-10"
+            className="absolute top-full left-0 right-0 mt-1 bg-dark-700 border border-dark-600 px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100 text-left font-mono text-sm z-10"
           >
             Add "{input}" as new person
           </button>

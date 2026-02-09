@@ -3,8 +3,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        dark: { 900: '#0a0a0f', 800: '#12121f', 700: '#1a1a2e', 600: '#2d2d44' },
-        accent: { purple: '#8B5CF6', pink: '#EC4899', amber: '#F59E0B' }
+        dark: { 900: '#111114', 800: '#18181c', 700: '#1e1e22', 600: '#2a2a2e' },
+        accent: { orange: '#E85D3A', amber: '#E85D3A' }
+      },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'monospace'],
       }
     }
   },

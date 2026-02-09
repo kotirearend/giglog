@@ -11,26 +11,27 @@ export function PersonDetail({ person, gigs = [], onBack, onSelectGig }) {
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={onBack}
-          className="text-gray-400 hover:text-gray-200 transition-colors"
+          className="text-gray-600 hover:text-gray-400 transition-colors"
         >
           ← Back
         </button>
-        <h1 className="text-2xl font-bold text-gray-100">{person.nickname}</h1>
+        <h1 className="text-2xl font-black text-white tracking-tighter">{person.nickname}</h1>
         <div className="w-6" />
       </div>
 
-      <div className="bg-dark-700 border border-dark-600 rounded-lg p-4 mb-6">
-        <p className="text-sm text-gray-400 mb-2">Total gigs together</p>
-        <p className="text-3xl font-bold text-accent-purple">
+      <div className="bg-dark-800 border border-dark-700 p-4 mb-6">
+        <p className="font-mono text-[10px] text-gray-600 font-bold tracking-[2px] uppercase mb-3">Total gigs together</p>
+        <p className="font-mono text-3xl font-extrabold text-accent-orange">
           {personGigs.length}
         </p>
       </div>
 
       {personGigs.length > 0 ? (
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-gray-100 mb-3">
-            Gigs together
-          </h2>
+          <div className="flex items-center gap-3 mb-4">
+            <p className="font-mono text-[10px] text-gray-600 font-bold tracking-[2px] uppercase">Gigs together</p>
+            <div className="flex-1 h-px bg-dark-700" />
+          </div>
           {personGigs.map((gig) => (
             <GigCard
               key={gig.id}

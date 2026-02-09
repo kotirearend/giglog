@@ -27,10 +27,12 @@ export function Login({ onLogin, onRegister, onOffline }) {
     <div className="max-w-lg mx-auto px-4 h-screen flex flex-col items-center justify-center">
       <div className="w-full space-y-6">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-purple to-accent-pink mb-2">
-            GigLog
-          </h1>
-          <p className="text-gray-400">Gig diary for musicians</p>
+          <div className="mb-2">
+            <h1 className="text-4xl font-black text-white italic inline-block border-b-4 border-accent-orange pb-1">
+              GIGLOG
+            </h1>
+          </div>
+          <p className="text-gray-600">Gig diary for musicians</p>
         </div>
 
         <div className="space-y-4">
@@ -39,7 +41,7 @@ export function Login({ onLogin, onRegister, onOffline }) {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+            className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
           />
 
           <input
@@ -52,7 +54,7 @@ export function Login({ onLogin, onRegister, onOffline }) {
                 handleLogin();
               }
             }}
-            className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+            className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
           />
 
           {error && (
@@ -62,7 +64,7 @@ export function Login({ onLogin, onRegister, onOffline }) {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
@@ -79,7 +81,7 @@ export function Login({ onLogin, onRegister, onOffline }) {
 
         <button
           onClick={() => onRegister()}
-          className="w-full bg-dark-700 border border-dark-600 text-gray-100 font-semibold py-3 rounded-lg hover:border-accent-purple transition-all duration-200"
+          className="w-full border border-dark-600 text-gray-400 font-semibold py-3 hover:border-accent-orange transition-all duration-200"
         >
           Create account
         </button>

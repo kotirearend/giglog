@@ -84,9 +84,9 @@ export function AddGig({
         )}
       </div>
 
-      <div className="bg-dark-700 rounded-lg h-1 mb-6 overflow-hidden">
+      <div className="bg-dark-700 h-1 mb-6 overflow-hidden">
         <div
-          className="bg-gradient-to-r from-accent-purple to-accent-pink h-full transition-all duration-300"
+          className="bg-accent-orange h-full transition-all duration-300"
           style={{ width: `${(step / totalSteps) * 100}%` }}
         />
       </div>
@@ -94,23 +94,23 @@ export function AddGig({
       <div className="mb-8">
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100">Step 1: Date</h2>
+            <h2 className="text-lg font-bold text-gray-100">Step 1: Date</h2>
             <p className="text-gray-400 text-sm">When was the gig? Defaults to today (or last night if before 10am).</p>
             <input
               type="date"
               value={gigDate}
               onChange={(e) => setGigDate(e.target.value)}
               max={new Date().toISOString().split('T')[0]}
-              className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+              className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
             />
-            <div className="bg-dark-700 border border-dark-600 rounded-lg p-3 text-center">
+            <div className="bg-dark-700 border border-dark-600 p-3 text-center">
               <p className="text-gray-400 text-sm">Selected date</p>
               <p className="text-gray-100 font-medium">{formatDate(gigDate)}</p>
             </div>
             <button
               onClick={() => setStep(2)}
               disabled={!gigDate}
-              className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -119,7 +119,7 @@ export function AddGig({
 
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100">Step 2: Venue</h2>
+            <h2 className="text-lg font-bold text-gray-100">Step 2: Venue</h2>
             <VenuePicker venues={venues} onSelect={(v) => {
               setVenue(v);
               setStep(3);
@@ -129,7 +129,7 @@ export function AddGig({
 
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100">Step 3: Artist</h2>
+            <h2 className="text-lg font-bold text-gray-100">Step 3: Artist</h2>
             <ArtistInput
               value={artist}
               onChange={setArtist}
@@ -138,7 +138,7 @@ export function AddGig({
             <button
               onClick={() => setStep(4)}
               disabled={!artist}
-              className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -147,15 +147,15 @@ export function AddGig({
 
         {step === 4 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100">Step 4: Photo (optional)</h2>
+            <h2 className="text-lg font-bold text-gray-100">Step 4: Photo (optional)</h2>
             {photo ? (
               <div className="space-y-3">
-                <div className="bg-dark-700 rounded-lg p-4 text-center">
+                <div className="bg-dark-700 p-4 text-center">
                   <p className="text-gray-300">Photo selected</p>
                 </div>
                 <button
                   onClick={() => setPhoto(null)}
-                  className="w-full bg-dark-600 text-gray-100 font-semibold py-3 rounded-lg hover:bg-dark-500 transition-all duration-200"
+                  className="w-full border border-dark-600 text-gray-400 font-bold py-3 hover:border-accent-orange transition-all duration-200"
                 >
                   Change photo
                 </button>
@@ -166,13 +166,13 @@ export function AddGig({
                   onClick={() => {
                     setPhoto({ url: 'data:image/placeholder', small: 'data:image/placeholder' });
                   }}
-                  className="w-full bg-dark-700 border border-dark-600 text-gray-100 font-semibold py-4 rounded-lg hover:border-accent-purple transition-all duration-200"
+                  className="w-full border border-dark-600 text-gray-400 font-bold py-4 hover:border-accent-orange transition-all duration-200"
                 >
                   📸 Take photo
                 </button>
                 <button
                   onClick={() => setStep(5)}
-                  className="w-full bg-dark-600 text-gray-100 font-semibold py-3 rounded-lg hover:bg-dark-500 transition-all duration-200"
+                  className="w-full border border-dark-600 text-gray-400 font-bold py-3 hover:border-accent-orange transition-all duration-200"
                 >
                   Skip
                 </button>
@@ -181,7 +181,7 @@ export function AddGig({
             {photo && (
               <button
                 onClick={() => setStep(5)}
-                className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200"
+                className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200"
               >
                 Continue
               </button>
@@ -191,8 +191,8 @@ export function AddGig({
 
         {step === 5 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100">Step 5: Confirm</h2>
-            <div className="bg-dark-700 border border-dark-600 rounded-lg p-4 space-y-3">
+            <h2 className="text-lg font-bold text-gray-100">Step 5: Confirm</h2>
+            <div className="bg-dark-700 border border-dark-600 p-4 space-y-3">
               <div>
                 <p className="text-gray-400 text-sm">Date</p>
                 <p className="text-gray-100 font-medium">{formatDate(gigDate)}</p>
@@ -210,7 +210,7 @@ export function AddGig({
             </div>
             <button
               onClick={handleSave}
-              className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200"
+              className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200"
             >
               Save gig
             </button>
@@ -221,7 +221,7 @@ export function AddGig({
       {step === 1 && (
         <button
           onClick={onCancel}
-          className="w-full bg-dark-600 text-gray-100 font-semibold py-3 rounded-lg hover:bg-dark-500 transition-all duration-200"
+          className="w-full border border-dark-600 text-gray-400 font-bold py-3 hover:border-accent-orange transition-all duration-200"
         >
           Cancel
         </button>

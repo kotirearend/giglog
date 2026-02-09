@@ -35,12 +35,12 @@ export function Register({ onRegister, onLogin }) {
         <div className="text-center mb-8">
           <button
             onClick={onLogin}
-            className="text-gray-400 hover:text-gray-200 transition-colors mb-6"
+            className="text-accent-orange font-mono uppercase text-sm hover:opacity-80 transition-opacity mb-6"
           >
             ← Back to login
           </button>
-          <h1 className="text-3xl font-bold text-gray-100">Create account</h1>
-          <p className="text-gray-400 mt-2">Join GigLog today</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Create account</h1>
+          <p className="text-gray-600 mt-2">Join GigLog today</p>
         </div>
 
         <div className="space-y-4">
@@ -49,7 +49,7 @@ export function Register({ onRegister, onLogin }) {
             placeholder="Display name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+            className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
           />
 
           <input
@@ -57,7 +57,7 @@ export function Register({ onRegister, onLogin }) {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+            className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
           />
 
           <input
@@ -70,7 +70,7 @@ export function Register({ onRegister, onLogin }) {
                 handleRegister();
               }
             }}
-            className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+            className="w-full bg-dark-800 border border-dark-700 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
           />
 
           {error && (
@@ -80,7 +80,7 @@ export function Register({ onRegister, onLogin }) {
           <button
             onClick={handleRegister}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-accent-purple to-accent-pink text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-accent-orange text-white font-bold py-3 hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account...' : 'Create account'}
           </button>

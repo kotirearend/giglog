@@ -21,14 +21,14 @@ export function MoodChips({ selected, onChange }) {
         <button
           key={mood.id}
           onClick={() => handleClick(mood.id)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-2 transition-all duration-150 font-mono text-sm ${
             selected.includes(mood.id)
-              ? 'bg-accent-purple text-white'
-              : 'bg-dark-700 border border-dark-600 text-gray-300 hover:border-accent-purple'
+              ? 'bg-accent-orange text-gray-100'
+              : 'bg-dark-700 border border-dark-600 text-gray-300 hover:border-accent-orange'
           }`}
         >
           <span className="text-lg">{mood.emoji}</span>
-          <span className="text-sm">{mood.label}</span>
+          <span>{mood.label}</span>
         </button>
       ))}
     </div>

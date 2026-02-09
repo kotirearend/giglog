@@ -26,16 +26,16 @@ export function ArtistInput({ value, onChange, artists = [] }) {
           setShowSuggestions(e.target.value.length > 0);
         }}
         onFocus={() => setShowSuggestions(value.length > 0)}
-        className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-gray-100 focus:border-accent-purple focus:outline-none"
+        className="w-full bg-dark-700 border border-dark-600 px-4 py-3 text-gray-100 focus:border-accent-orange focus:outline-none"
       />
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-dark-700 border border-dark-600 rounded-lg overflow-hidden z-10">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-dark-700 border border-dark-600 overflow-hidden z-10">
           {suggestions.map((artist, index) => (
             <button
               key={index}
               onClick={() => handleSelect(artist)}
-              className="w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100"
+              className="w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors text-gray-100 font-mono text-sm"
             >
               {artist}
             </button>
