@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { post } from '../api/client';
+import { post, put } from '../api/client';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -55,6 +55,18 @@ export function useAuth() {
     }
   }
 
+  async function updateProfile({ display_name, email }) {
+    try {
+      const response = await put('/auth/profile', { display_name, email });
+      if (response.user) {
+        setUser(response.user);
+      }
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   function logout() {
     setUser(null);
     setToken(null);
@@ -79,6 +91,7 @@ export function useAuth() {
     isAuthenticated: !!token || isOfflineMode,
     login,
     register,
+    updateProfile,
     logout,
     isOfflineMode,
     setOfflineMode: handleSetOfflineMode,

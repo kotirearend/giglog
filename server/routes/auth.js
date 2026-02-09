@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { validateAuth } from '../middleware/validate.js';
+import authenticate from '../middleware/auth.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -78,6 +79,37 @@ router.post('/refresh', async (req, res) => {
     res.json({ access_token: accessToken });
   } catch (err) {
     res.status(401).json({ error: 'Invalid refresh token' });
+  }
+});
+
+router.put('/profile', authenticate, async (req, res) => {
+  try {
+    const { display_name, email } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check email uniqueness if it changed
+    if (email !== req.user.email) {
+      const existing = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, req.user.id]);
+      if (existing.rows.length > 0) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET email = $1, display_name = $2 WHERE id = $3 RETURNING id, email, display_name',
+      [email.trim(), display_name ? display_name.trim() : null, req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

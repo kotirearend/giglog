@@ -274,6 +274,7 @@ export default function App() {
             auth.logout();
             goToLogin();
           }}
+          onUpdateProfile={auth.updateProfile}
         />
       )}
 
