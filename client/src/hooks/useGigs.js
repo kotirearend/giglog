@@ -76,11 +76,17 @@ export function useGigs(token) {
   function toClientFields(gig) {
     const mapped = { ...gig };
     if ('mood_tags' in mapped) {
-      mapped.mood = mapped.mood_tags || [];
+      const mt = mapped.mood_tags;
+      mapped.mood = Array.isArray(mt) ? mt : [];
       delete mapped.mood_tags;
     }
     if ('purchases' in mapped) {
-      mapped.spend_items = mapped.purchases || [];
+      let p = mapped.purchases;
+      // pg may return JSONB as a string in some edge cases — parse it
+      if (typeof p === 'string') {
+        try { p = JSON.parse(p); } catch { p = []; }
+      }
+      mapped.spend_items = Array.isArray(p) ? p : [];
       delete mapped.purchases;
     }
     return mapped;

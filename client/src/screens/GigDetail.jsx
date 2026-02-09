@@ -36,7 +36,7 @@ export function GigDetail({
     return <div className="text-center py-12 text-gray-400">Loading...</div>;
   }
 
-  const spendItems = editData.spend_items || [];
+  const spendItems = Array.isArray(editData.spend_items) ? editData.spend_items : [];
   const totalSpend = spendItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   async function handleSave() {
