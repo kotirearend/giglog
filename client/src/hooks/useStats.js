@@ -17,7 +17,8 @@ export function useStats(gigs) {
     const totalGigs = gigs.length;
 
     const gigsThisYear = gigs.filter((g) => {
-      const year = new Date(g.gig_date + 'T00:00:00').getFullYear();
+      const dateOnly = String(g.gig_date || '').split('T')[0];
+      const year = new Date(dateOnly + 'T12:00:00').getFullYear();
       return year === currentYear;
     }).length;
 

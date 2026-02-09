@@ -23,8 +23,8 @@ export function Timeline({
   const totalGigs = gigs.length;
   const currentYear = new Date().getFullYear();
   const thisYearGigs = gigs.filter((g) => {
-    const d = new Date(g.gig_date);
-    return d.getFullYear() === currentYear;
+    const dateOnly = String(g.gig_date || '').split('T')[0];
+    return new Date(dateOnly + 'T12:00:00').getFullYear() === currentYear;
   }).length;
   const uniqueArtists = new Set(gigs.map((g) => g.artist_text).filter(Boolean)).size;
 
