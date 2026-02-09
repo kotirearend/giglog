@@ -4,6 +4,7 @@ import { useGigs } from './hooks/useGigs';
 import { useStats } from './hooks/useStats';
 import { useSync } from './hooks/useSync';
 import { saveLocalPerson, getLocalPeople } from './db/local';
+import { get, post } from './api/client';
 
 import { Timeline } from './screens/Timeline';
 import { AddGig } from './screens/AddGig';
@@ -30,7 +31,7 @@ export default function App() {
 
   useEffect(() => {
     loadPeople();
-  }, []);
+  }, [auth.token]);
 
   useEffect(() => {
     if (auth.token && !auth.isOfflineMode) {
@@ -40,8 +41,30 @@ export default function App() {
   }, [auth.token, auth.isOfflineMode]);
 
   async function loadPeople() {
-    const localPeople = await getLocalPeople();
-    setPeople(localPeople);
+    try {
+      if (auth.token) {
+        // Online: fetch from server, cache locally
+        const response = await get('/people');
+        const serverPeople = Array.isArray(response) ? response : (response.people || []);
+        for (const p of serverPeople) {
+          await saveLocalPerson(p);
+        }
+        // Merge with any local-only people not yet on server
+        const localPeople = await getLocalPeople();
+        const serverIds = new Set(serverPeople.map((p) => p.id));
+        const localOnly = localPeople.filter(
+          (p) => !serverIds.has(p.id) && p.id.startsWith('person-')
+        );
+        setPeople([...serverPeople, ...localOnly]);
+      } else {
+        const localPeople = await getLocalPeople();
+        setPeople(localPeople);
+      }
+    } catch (error) {
+      console.error('Error loading people:', error);
+      const localPeople = await getLocalPeople();
+      setPeople(localPeople);
+    }
   }
 
   // Derive artists and venues from gigs
@@ -128,6 +151,18 @@ export default function App() {
   }
 
   async function handleAddPerson(personData) {
+    try {
+      if (auth.token) {
+        // Online: create on server, use server-generated ID
+        const serverPerson = await post('/people', { nickname: personData.nickname, emoji: personData.emoji || null });
+        await saveLocalPerson(serverPerson);
+        setPeople((prev) => [...prev, serverPerson]);
+        return serverPerson;
+      }
+    } catch (err) {
+      console.error('Error creating person on server, saving locally:', err);
+    }
+    // Offline or server failed: save locally
     const person = {
       id: `person-${Date.now()}`,
       nickname: personData.nickname,
@@ -135,7 +170,8 @@ export default function App() {
       ...personData,
     };
     await saveLocalPerson(person);
-    setPeople([...people, person]);
+    setPeople((prev) => [...prev, person]);
+    return person;
   }
 
   async function handleLogin(email, password) {
