@@ -110,7 +110,7 @@ export default function App() {
     // Auto-create person records for any new names added to this gig
     try {
       if (data.people && data.people.length > 0) {
-        const existingNicknames = people.map((p) => p.nickname.toLowerCase());
+        const existingNicknames = people.map((p) => (p.nickname || '').toLowerCase());
         for (const name of data.people) {
           if (!existingNicknames.includes(name.toLowerCase())) {
             await handleAddPerson({ nickname: name });

@@ -134,8 +134,9 @@ export function useGigs(token) {
 
   async function updateGig(id, data) {
     try {
+      const existing = gigs.find((g) => g.id === id) || {};
       const updated = {
-        ...gigs.find((g) => g.id === id),
+        ...existing,
         ...data,
         updated_at: new Date().toISOString(),
       };

@@ -1,6 +1,20 @@
 import { useState } from 'react';
-import { post, get } from '../api/client';
+import { post, put, del, get } from '../api/client';
 import { getSyncQueue, removeSyncQueueItem } from '../db/local';
+
+// Map client field names to server field names before syncing
+function toServerFields(data) {
+  const mapped = { ...data };
+  if ('mood' in mapped) {
+    mapped.mood_tags = mapped.mood;
+    delete mapped.mood;
+  }
+  if ('spend_items' in mapped) {
+    mapped.purchases = mapped.spend_items;
+    delete mapped.spend_items;
+  }
+  return mapped;
+}
 
 export function useSync(token) {
   const [syncing, setSyncing] = useState(false);
@@ -18,11 +32,11 @@ export function useSync(token) {
       for (const item of queue) {
         try {
           if (item.type === 'create_gig') {
-            await post('/gigs', item.data);
+            await post('/gigs', toServerFields(item.data));
           } else if (item.type === 'update_gig') {
-            await post(`/gigs/${item.data.id}`, item.data);
+            await put(`/gigs/${item.data.id}`, toServerFields(item.data));
           } else if (item.type === 'delete_gig') {
-            await post(`/gigs/${item.data.id}/delete`, {});
+            await del(`/gigs/${item.data.id}`);
           }
 
           await removeSyncQueueItem(item.autoId);

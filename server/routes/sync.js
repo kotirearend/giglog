@@ -19,16 +19,37 @@ router.post('/push', async (req, res) => {
         if (existing.rows.length > 0) {
           if (new Date(gig.updated_at) > new Date(existing.rows[0].updated_at)) {
             await pool.query(
-              `UPDATE gigs SET artist_text = $1, venue_name_snapshot = $2, notes = $3, updated_at = NOW() 
-               WHERE id = $4 AND user_id = $5`,
-              [gig.artist_text, gig.venue_name_snapshot, gig.notes, gigId, req.user.id]
+              `UPDATE gigs SET artist_text = $1, venue_name_snapshot = $2, notes = $3,
+               mood_tags = $4, purchases = $5, rating = $6, people = $7,
+               spend_total = $8, venue_id = $9, venue_city_snapshot = $10,
+               gig_time = $11, updated_at = NOW()
+               WHERE id = $12 AND user_id = $13`,
+              [
+                gig.artist_text, gig.venue_name_snapshot, gig.notes,
+                gig.mood_tags || null,
+                gig.purchases ? JSON.stringify(gig.purchases) : null,
+                gig.rating || null, gig.people || null,
+                gig.spend_total || null, gig.venue_id || null,
+                gig.venue_city_snapshot || null, gig.gig_time || null,
+                gigId, req.user.id
+              ]
             );
           }
         } else {
           await pool.query(
-            `INSERT INTO gigs (id, user_id, gig_date, artist_text, venue_name_snapshot, created_at, updated_at) 
-             VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-            [gigId, req.user.id, gig.gig_date, gig.artist_text, gig.venue_name_snapshot]
+            `INSERT INTO gigs (id, user_id, gig_date, artist_text, venue_name_snapshot,
+             mood_tags, purchases, rating, people, spend_total, venue_id,
+             venue_city_snapshot, gig_time, notes, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+            [
+              gigId, req.user.id, gig.gig_date, gig.artist_text, gig.venue_name_snapshot,
+              gig.mood_tags || null,
+              gig.purchases ? JSON.stringify(gig.purchases) : null,
+              gig.rating || null, gig.people || null,
+              gig.spend_total || null, gig.venue_id || null,
+              gig.venue_city_snapshot || null, gig.gig_time || null,
+              gig.notes || null
+            ]
           );
         }
       }

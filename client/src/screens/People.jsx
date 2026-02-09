@@ -73,7 +73,7 @@ export function People({ people = [], gigs = [], onSelect, onAdd }) {
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
                     style={{ backgroundColor: hashColor(person.nickname) }}
                   >
-                    {person.nickname[0].toUpperCase()}
+                    {(person.nickname || '?')[0].toUpperCase()}
                   </div>
                   <div>
                     <p className="font-semibold text-gray-100">

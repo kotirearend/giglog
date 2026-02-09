@@ -46,10 +46,15 @@ router.get('/pints', async (req, res) => {
     
     let prices = [];
     result.rows.forEach(row => {
-      if (row.purchases && Array.isArray(row.purchases)) {
-        row.purchases.forEach(purchase => {
-          if (purchase.price) {
-            prices.push(parseFloat(purchase.price));
+      let purchases = row.purchases;
+      // pg may return JSONB as a string — parse it
+      if (typeof purchases === 'string') {
+        try { purchases = JSON.parse(purchases); } catch { purchases = []; }
+      }
+      if (purchases && Array.isArray(purchases)) {
+        purchases.forEach(purchase => {
+          if (purchase.amount) {
+            prices.push(parseFloat(purchase.amount));
           }
         });
       }
