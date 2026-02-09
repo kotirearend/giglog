@@ -1,4 +1,4 @@
-const CACHE_NAME = 'giglog-v11';
+const CACHE_NAME = 'giglog-v12';
 const ASSET_PATTERNS = [/\.(js|css|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot)$/];
 
 self.addEventListener('install', (event) => {

@@ -38,8 +38,9 @@ export function useStats(gigs) {
           (artistCounts[gig.artist_text] || 0) + 1;
       }
 
-      if (gig.spend_items) {
-        gig.spend_items.forEach((item) => {
+      const items = Array.isArray(gig.spend_items) ? gig.spend_items : [];
+      if (items.length > 0) {
+        items.forEach((item) => {
           totalSpend += item.amount || 0;
           if (item.is_pint) {
             pintCount++;
