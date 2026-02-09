@@ -3,11 +3,19 @@ import pool from '../db/pool.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { validateAuth } from '../middleware/validate.js';
+import { validateAuth, validateProfile } from '../middleware/validate.js';
 import authenticate from '../middleware/auth.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+// Validate JWT secrets exist at startup
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must be configured and at least 32 characters');
+}
+if (!process.env.JWT_REFRESH_SECRET || process.env.JWT_REFRESH_SECRET.length < 32) {
+  throw new Error('JWT_REFRESH_SECRET must be configured and at least 32 characters');
+}
 
 const router = Router();
 
@@ -25,7 +33,7 @@ router.post('/register', validateAuth, async (req, res) => {
 
     const result = await pool.query(
       'INSERT INTO users (id, email, password_hash, display_name) VALUES ($1, $2, $3, $4) RETURNING id, email, display_name',
-      [userId, email, passwordHash, display_name || null]
+      [userId, email, passwordHash, (display_name || '').trim().slice(0, 100) || null]
     );
 
     const user = result.rows[0];
@@ -34,7 +42,8 @@ router.post('/register', validateAuth, async (req, res) => {
 
     res.status(201).json({ user, access_token: accessToken, refresh_token: refreshToken });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 
@@ -62,7 +71,8 @@ router.post('/login', validateAuth, async (req, res) => {
       refresh_token: refreshToken
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
@@ -82,17 +92,13 @@ router.post('/refresh', async (req, res) => {
   }
 });
 
-router.put('/profile', authenticate, async (req, res) => {
+router.put('/profile', authenticate, validateProfile, async (req, res) => {
   try {
     const { display_name, email } = req.body;
 
-    if (!email || !email.trim()) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
     // Check email uniqueness if it changed
-    if (email !== req.user.email) {
-      const existing = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, req.user.id]);
+    if (email.trim().toLowerCase() !== req.user.email.toLowerCase()) {
+      const existing = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) AND id != $2', [email.trim(), req.user.id]);
       if (existing.rows.length > 0) {
         return res.status(400).json({ error: 'Email already in use' });
       }
@@ -109,7 +115,43 @@ router.put('/profile', authenticate, async (req, res) => {
 
     res.json({ user: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Profile update error:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+router.put('/password', authenticate, async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'Current and new password are required' });
+    }
+    if (new_password.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+    if (new_password.length > 128) {
+      return res.status(400).json({ error: 'Password too long' });
+    }
+
+    // Verify current password
+    const userResult = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(current_password, userResult.rows[0].password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    const newHash = await bcrypt.hash(new_password, 12);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
+
+    res.json({ message: 'Password updated' });
+  } catch (err) {
+    console.error('Password change error:', err);
+    res.status(500).json({ error: 'Failed to change password' });
   }
 });
 

@@ -23,20 +23,24 @@ app.set('trust proxy', 1);
 
 app.use(helmet());
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+
+// Request timeout — prevent slow clients from holding connections
+app.use((req, res, next) => {
+  req.setTimeout(30000);
+  next();
+});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   message: 'Too many requests from this IP, please try again later.',
-  validate: { xForwardedForHeader: false },
 });
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
   message: 'Too many requests from this IP, please try again later.',
-  validate: { xForwardedForHeader: false },
 });
 
 // Mount routes with /api prefix (direct access)

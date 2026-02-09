@@ -13,8 +13,8 @@ export function Register({ onRegister, onLogin }) {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -62,7 +62,7 @@ export function Register({ onRegister, onLogin }) {
 
           <input
             type="password"
-            placeholder="Password (min 6 characters)"
+            placeholder="Password (min 8 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyPress={(e) => {

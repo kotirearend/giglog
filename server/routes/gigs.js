@@ -16,8 +16,12 @@ router.get('/', async (req, res) => {
     const params = [req.user.id];
 
     if (year) {
+      const yearNum = parseInt(year);
+      if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+        return res.status(400).json({ error: 'Invalid year' });
+      }
       query += ` AND EXTRACT(YEAR FROM gig_date) = $${params.length + 1}`;
-      params.push(parseInt(year));
+      params.push(yearNum);
     }
 
     if (artist) {
@@ -41,7 +45,8 @@ router.get('/', async (req, res) => {
     const result = await pool.query(query, params);
     res.json({ gigs: result.rows });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Gigs route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -69,7 +74,8 @@ router.post('/', validateGig, async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Gigs route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -81,7 +87,8 @@ router.get('/:id', async (req, res) => {
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Gigs route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -127,7 +134,8 @@ router.put('/:id', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Gigs route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -139,7 +147,8 @@ router.delete('/:id', async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Gigs route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

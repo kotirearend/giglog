@@ -36,7 +36,8 @@ router.get('/summary', async (req, res) => {
       top_artists: topArtistsResult.rows
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Stats route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -68,7 +69,8 @@ router.get('/pints', async (req, res) => {
 
     res.json({ avg: parseFloat(avg), max, trend, total_drinks: prices.length });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Stats route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

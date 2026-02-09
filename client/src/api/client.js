@@ -5,10 +5,10 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function handleResponse(response) {
+async function handleResponse(response, retryFn) {
   if (!response.ok) {
-    // Try token refresh on 401
-    if (response.status === 401) {
+    // Try token refresh on 401, then retry the original request
+    if (response.status === 401 && retryFn) {
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
@@ -21,22 +21,38 @@ async function handleResponse(response) {
             const refreshData = await refreshRes.json();
             if (refreshData.access_token) {
               localStorage.setItem('token', refreshData.access_token);
-              // Retry the original request is not implemented yet
+              // Retry the original request with new token
+              return retryFn();
             }
+          } else {
+            // Refresh failed — clear tokens (session expired)
+            localStorage.removeItem('token');
+            localStorage.removeItem('refresh_token');
           }
         } catch (e) {
-          console.error('Token refresh failed:', e);
+          // Refresh request failed entirely
         }
       }
     }
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP ${response.status}`);
+    throw new Error(errorData.error || 'Request failed');
   }
 
   return response.json();
 }
 
 export async function get(path) {
+  const doFetch = async () => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+    });
+    return handleResponse(response, null); // No retry on retried request
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
     method: 'GET',
     headers: {
@@ -44,10 +60,22 @@ export async function get(path) {
       ...getAuthHeader(),
     },
   });
-  return handleResponse(response);
+  return handleResponse(response, doFetch);
 }
 
 export async function post(path, body) {
+  const doFetch = async () => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(body),
+    });
+    return handleResponse(response, null);
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
     method: 'POST',
     headers: {
@@ -56,10 +84,22 @@ export async function post(path, body) {
     },
     body: JSON.stringify(body),
   });
-  return handleResponse(response);
+  return handleResponse(response, doFetch);
 }
 
 export async function put(path, body) {
+  const doFetch = async () => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(body),
+    });
+    return handleResponse(response, null);
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
     method: 'PUT',
     headers: {
@@ -68,10 +108,21 @@ export async function put(path, body) {
     },
     body: JSON.stringify(body),
   });
-  return handleResponse(response);
+  return handleResponse(response, doFetch);
 }
 
 export async function del(path) {
+  const doFetch = async () => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+    });
+    return handleResponse(response, null);
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
     method: 'DELETE',
     headers: {
@@ -79,5 +130,5 @@ export async function del(path) {
       ...getAuthHeader(),
     },
   });
-  return handleResponse(response);
+  return handleResponse(response, doFetch);
 }
